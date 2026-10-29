@@ -70,13 +70,13 @@ def fetch_recent(now):
     return msgs
 
 def main():
-now = datetime.now(timezone.utc)
-me = call(“GET”, “/users/@me”)[“id”]
-msgs = fetch_recent(now)
+    now = datetime.now(timezone.utc)
+    me = call(“GET”, “/users/@me”)[“id”]
+    msgs = fetch_recent(now)
 
-print("Bot ID:", me)
-print("取得したメッセージ数:", len(msgs))
-for m in msgs[:10]:
+    print("Bot ID:", me)
+    print("取得したメッセージ数:", len(msgs))
+    for m in msgs[:10]:
     print(
         "投稿:", m["id"],
         "添付ファイル数:", len(m.get("attachments", [])),
