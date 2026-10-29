@@ -70,43 +70,51 @@ def fetch_recent(now):
     return msgs
 
 def main():
-    now = datetime.now(timezone.utc)
-    me = call("GET", "/users/@me")["id"]
-    msgs = fetch_recent(now)
-    
+now = datetime.now(timezone.utc)
+me = call(“GET”, “/users/@me”)[“id”]
+msgs = fetch_recent(now)
+
 print("Bot ID:", me)
 print("取得したメッセージ数:", len(msgs))
-
 for m in msgs[:10]:
     print(
         "投稿:", m["id"],
-        "投稿者:", m["author"]["id"],
         "添付ファイル数:", len(m.get("attachments", [])),
         "画像判定:", has_image(m),
     )
+replied = {
+    m["message_reference"]["message_id"]
+    for m in msgs
+    if (
+        m["author"]["id"] == me
+        and m.get("message_reference", {}).get("message_id")
+    )
+}
+for m in msgs:
+    if m["author"]["id"] == me or m["id"] in replied:
+        continue
+    age = now - datetime.fromisoformat(
+        m["timestamp"].replace("Z", "+00:00")
+    )
+    if not (
+        timedelta(hours=MIN_HOURS)
+        <= age
+        < timedelta(hours=MAX_HOURS)
+    ):
+        continue
+    if not has_image(m):
+        continue
+    call("POST", f"/channels/{CHANNEL_ID}/messages", {
+        "content": f"<@{m['author']['id']}> {MESSAGE}",
+        "message_reference": {
+            "message_id": m["id"],
+            "fail_if_not_exists": False,
+        },
+        "allowed_mentions": {
+            "users": [m["author"]["id"]]
+        },
+    })
+    print("notified", m["id"])
 
-    # すでに返信済みの投稿ID
-    replied = {
-        m["message_reference"]["message_id"]
-        for m in msgs
-        if m["author"]["id"] == me and m.get("message_reference", {}).get("message_id")
-    }
-
-    for m in msgs:
-        if m["author"]["id"] == me or m["id"] in replied:
-            continue
-        age = now - datetime.fromisoformat(m["timestamp"])
-        if not (timedelta(hours=MIN_HOURS) <= age < timedelta(hours=MAX_HOURS)):
-            continue
-        if not has_image(m):
-            continue
-        call("POST", f"/channels/{CHANNEL_ID}/messages", {
-            "content": f"<@{m['author']['id']}> {MESSAGE}",
-            "message_reference": {"message_id": m["id"], "fail_if_not_exists": False},
-            "allowed_mentions": {"users": [m["author"]["id"]]},
-        })
-        print("notified", m["id"])
-
-
-if __name__ == "__main__":
-    main()
+if name == “main”:
+main()
