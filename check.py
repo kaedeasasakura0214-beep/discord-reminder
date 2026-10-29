@@ -39,11 +39,17 @@ def call(method, path, body=None):
 
 def has_image(m):
     for a in m.get("attachments", []):
-        if (a.get("content_type") or "").startswith("image/"):
+        content_type = a.get("content_type") or ""
+        filename = a.get("filename") or ""
+
+        if content_type.startswith("image/"):
             return True
-    for e in m.get("embeds", []):
-        if "image" in e or "thumbnail" in e or e.get("type") == "image":
+
+        if filename.lower().endswith(
+            (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")
+        ):
             return True
+
     return False
 
 
