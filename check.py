@@ -69,7 +69,11 @@ def fetch_recent(now):
             break
     return msgs
 
-
+def main():
+    now = datetime.now(timezone.utc)
+    me = call("GET", "/users/@me")["id"]
+    msgs = fetch_recent(now)
+    
 print("Bot ID:", me)
 print("取得したメッセージ数:", len(msgs))
 
