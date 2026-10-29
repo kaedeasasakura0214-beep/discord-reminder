@@ -7,8 +7,8 @@ from datetime import datetime, timedelta, timezone
 
 TOKEN = os.environ["DISCORD_TOKEN"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
-MIN_HOURS = 24      # この時間が経ったら通知
-MAX_HOURS = 48      # これより古い投稿は対象外(古い投稿への一斉通知を防ぐ)
+MIN_HOURS = 0     # この時間が経ったら通知
+MAX_HOURS = 1     # これより古い投稿は対象外(古い投稿への一斉通知を防ぐ)
 MESSAGE = "24時間が経過したので招待可能です"
 API = "https://discord.com/api/v10"
 
